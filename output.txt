@@ -1,0 +1,133 @@
+Started by user Anas Khan
+
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins
+ in /var/lib/jenkins/workspace/test-pipeline
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] git
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/test-pipeline/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/anas-khan2000/test-app.git # timeout=10
+Fetching upstream changes from https://github.com/anas-khan2000/test-app.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.17.1'
+ > git fetch --tags --progress -- https://github.com/anas-khan2000/test-app.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+Checking out Revision 9f8d778b4fbf8236b1ee1566e145dae90cfbc072 (refs/remotes/origin/master)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 9f8d778b4fbf8236b1ee1566e145dae90cfbc072 # timeout=10
+ > git branch -a -v --no-abbrev # timeout=10
+ > git branch -D master # timeout=10
+ > git checkout -b master 9f8d778b4fbf8236b1ee1566e145dae90cfbc072 # timeout=10
+Commit message: "updated code"
+ > git rev-list --no-walk dc7a28b25f06934e915097b4ff99355bc661f0ad # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build Docker Image)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] isUnix
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
++ docker build -t makanas/jenkins-test:6 .
+Sending build context to Docker daemon  87.55kB
+
+Step 1/7 : FROM ubuntu:20.04
+ ---> 9df6d6105df2
+Step 2/7 : RUN apt-get update && apt-get install -y python3 python3-pip
+ ---> Using cache
+ ---> d787b1845b7e
+Step 3/7 : RUN pip3 install Flask
+ ---> Using cache
+ ---> 22a49f98d1c5
+Step 4/7 : WORKDIR /app
+ ---> Using cache
+ ---> 2b74d84888eb
+Step 5/7 : COPY app.py app.py
+ ---> e9b249c6f555
+Step 6/7 : EXPOSE 5000
+ ---> Running in 5c7ee951eb16
+Removing intermediate container 5c7ee951eb16
+ ---> 11463033f481
+Step 7/7 : CMD ["python3", "app.py"]
+ ---> Running in 06e3a707fd13
+Removing intermediate container 06e3a707fd13
+ ---> f9a8493a8a2c
+Successfully built f9a8493a8a2c
+Successfully tagged makanas/jenkins-test:6
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Push to Docker Hub)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] withDockerRegistry
+$ docker login -u mak.bvb@gmail.com -p ******** https://registry.hub.docker.com
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+WARNING! Your password will be stored unencrypted in /var/lib/jenkins/workspace/test-pipeline@tmp/3a5f028d-5da0-4a4f-a5f7-4cfad5f55017/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+[Pipeline] {
+[Pipeline] isUnix
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
++ docker tag makanas/jenkins-test:6 registry.hub.docker.com/makanas/jenkins-test:6
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] isUnix
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
++ docker push registry.hub.docker.com/makanas/jenkins-test:6
+The push refers to repository [registry.hub.docker.com/makanas/jenkins-test]
+22bb610da664: Preparing
+23511f241430: Preparing
+da1c1b8dbbc8: Preparing
+066969405de0: Preparing
+3ec3ded77c0c: Preparing
+3ec3ded77c0c: Layer already exists
+23511f241430: Pushed
+22bb610da664: Pushed
+da1c1b8dbbc8: Pushed
+066969405de0: Pushed
+6: digest: sha256:89b4d7f2b7001296450cb185dd39897769a730f9ba83e4fc384ce3b24f827f5d size: 1367
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withDockerRegistry
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] echo
+Docker image built and pushed successfully!
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
