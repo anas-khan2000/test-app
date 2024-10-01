@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+    
+    environment {
+        // Replace with your Docker Hub username
+        DOCKER_HUB_REPO = 'makanas/jenkins-test'
+        // Replace with your Docker Hub credentials ID
+        DOCKER_CREDENTIALS_ID = 'Docker'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Pull code from GitHub
+                git branch: 'master', url: 'https://github.com/anas-khan2000/test-app.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    def app = docker.build("${DOCKER_HUB_REPO}:${env.BUILD_ID}")
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_CREDENTIALS_ID}") {
+                        def app = docker.image("${DOCKER_HUB_REPO}:${env.BUILD_ID}")
+                        // Push the Docker image to Docker Hub
+                        app.push()
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Docker image built and pushed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
+    }
+}
+
